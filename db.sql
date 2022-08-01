@@ -58,6 +58,7 @@ go
 create table loai_phong_khach_san (
 	ma_loai_phong_ks int not null,
 	ma_ks int not null,
+	foreign key (ma_ks) references khach_san(ma_ks),
 	primary key (ma_ks, ma_loai_phong_ks),
 
 	ten_loai_phong_ks nvarchar(255) not null,

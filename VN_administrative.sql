@@ -85,12 +85,6 @@ update dbo.ADDRESSES
 end
 go
 
-insert into addresses (address_line, ward_code, add_desc) values 
-	('nha 4', '00001', 'no desc'),
-	('nha 455', '00004', 'no desc'),
-	('nha 55', '00006', 'no desc'),
-	('nha 19055', '00190', 'no desc')
-
 --update addresses
 --	set full_address = 'phat' where ward_code = '00001'
 
@@ -12635,3 +12629,9 @@ INSERT INTO dbo.WARDS (code,name,name_en,full_name,full_name_en,code_name,distri
 	 ('32245',N'Tân Ân',N'Tan An',N'Xã Tân Ân',N'Tan An Commune',N'tan_an',N'973'),
 	 ('32248',N'Đất Mũi',N'Dat Mui',N'Xã Đất Mũi',N'Dat Mui Commune',N'dat_mui',N'973');
 go
+
+insert into addresses (address_line, ward_code, add_desc) values 
+	('nha 4', '00001', 'no desc'),
+	('nha 455', '00004', 'no desc'),
+	('nha 55', '00006', 'no desc'),
+	('nha 19055', '00190', 'no desc')

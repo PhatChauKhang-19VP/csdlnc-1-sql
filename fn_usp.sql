@@ -1,3 +1,6 @@
+use pck_bus_travel
+go
+
 /*
 json format:
 @ds_kh_dk
@@ -163,18 +166,24 @@ begin
 		where t.ma_tour like '%' + @ma_tour + '%'
 			and t.ten_tour like '%' + @ten_tour + '%'
 			and t.so_ngay >= @from_so_ngay and t.so_ngay <= @to_so_ngay
-			and t.gia_tien_dk >= @from_gia_tien and t.so_ngay <= @to_gia_tien
-			and t.ma_tour in (select lt.ma_tour 
-								from lo_trinh as lt
-								where @ds_ma_tinh ='[]' or lt.noi_den in (select * from openjson(@ds_ma_tinh) 
+			and t.gia_tien_dk >= @from_gia_tien and t.gia_tien_dk <= @to_gia_tien
+			and t.ma_tour in (select lot.ma_tour 
+								from lo_trinh as lot
+								where @ds_ma_tinh ='[]' or lot.noi_den in (select * from openjson(@ds_ma_tinh) 
 														with (ma_tinh varchar(20) '$.ma_tinh')))
-			and t.ma_tour in (select lt.ma_tour 
-								from lich_trinh as lt
-								where @ds_ma_dia_diem = '[]' or lt.ma_dia_diem in (select * from openjson(@ds_ma_dia_diem) 
+			and t.ma_tour in (select lit.ma_tour 
+								from lich_trinh as lit
+								where @ds_ma_dia_diem = '[]' or lit.ma_dia_diem in (select * from openjson(@ds_ma_dia_diem) 
 														with (ma_dia_diem varchar(20) '$.ma_dia_diem')))
 end
 go
 
 exec usp_tim_tour_not_op
 	@ma_tour = '1',
-	@ten_tour = 't'
+	@ten_tour = 'ur1',
+	@from_so_ngay = null,
+	@to_so_ngay = null,
+	@from_gia_tien = null,
+	@to_gia_tien = null,
+	@ds_ma_tinh = N'[{"ma_tinh":"02"}]',
+	@ds_ma_dia_diem = null

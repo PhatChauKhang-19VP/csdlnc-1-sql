@@ -1,4 +1,7 @@
-﻿insert into loai_tai_khoan_nhan_vien values 
+﻿use pck_bus_travel
+go
+
+insert into loai_tai_khoan_nhan_vien values 
 	(1, N'Quản lí'),
 	(2, N'Nhân sự'),
 	(3, N'Hướng dẫn viên'),
