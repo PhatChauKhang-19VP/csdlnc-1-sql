@@ -86,12 +86,14 @@ create table tours (
 go
 
 create table lo_trinh (
-	ma_tour varchar(255) not null, 
+	ma_tour varchar(255) not null,
+	foreign key (ma_tour) references tours(ma_tour),
+
 	stt int not null,
-	noi_khoi_hanh int not null,
-	foreign key (noi_khoi_hanh) references addresses(code),
-	noi_den int not null,
-	foreign key (noi_den) references addresses(code),
+	noi_khoi_hanh varchar(20) not null,
+	foreign key (noi_khoi_hanh) references provinces(code),
+	noi_den varchar(20) not null,
+	foreign key (noi_den) references provinces(code),
 	tg_di_chuyen float not null,
 	check (tg_di_chuyen > 0),
 	ma_ks int not null,
@@ -101,6 +103,7 @@ go
 
 create table lich_trinh (
 	ma_tour varchar(255) not null,
+	foreign key (ma_tour) references tours(ma_tour),
 	ngay_thu int not null,
 	check (ngay_thu > 0),
 	primary key (ma_tour, ngay_thu),
@@ -121,14 +124,14 @@ go
 
 create table tour_dang_ki (
 	ma_tour varchar(255) not null,
+	foreign key (ma_tour) references tours(ma_tour),
+
 	mo_lan_thu int not null,
 	primary key (ma_tour, mo_lan_thu),
 	
 	mo_dk_ngay datetime default current_timestamp,
 
 	kt_dk_ngay datetime not null,
-
-	co_the_dk as datediff(second, kt_dk_ngay, current_timestamp),
 
 	mo_boi_nv varchar(255) not null,
 	foreign key (mo_boi_nv) references nhan_vien(ma_nv),
