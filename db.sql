@@ -48,7 +48,7 @@ go
 
 -- khach san
 create table khach_san (
-	ma_ks int primary key,
+	ma_ks int primary key identity(1,1),
 	sdt char(10) not null,
 	ma_dia_chi int not null,
 	foreign key (ma_dia_chi) references addresses(code)

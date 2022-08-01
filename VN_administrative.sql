@@ -71,6 +71,33 @@ create table dbo.ADDRESSES(
 )
 go
 
+CREATE TRIGGER tr_i_addresses
+ON dbo.ADDRESSES
+FOR INSERT
+AS
+begin
+update dbo.ADDRESSES
+	set full_address = (select i.address_line + ', ' + w.full_name + ', ' + d.full_name + ', ' + p.full_name as full_address 
+							from dbo.WARDS as w
+							join dbo.DISTRICTS as d on w.district_code = d.code
+							join dbo.PROVINCES as p on d.province_code = p.code where w.code = i.ward_code)
+	from dbo.ADDRESSES inner join INSERTED i on dbo.ADDRESSES.code = i.code;
+end
+go
+
+insert into addresses (address_line, ward_code, add_desc) values 
+	('nha 4', '00001', 'no desc'),
+	('nha 455', '00004', 'no desc'),
+	('nha 55', '00006', 'no desc'),
+	('nha 19055', '00190', 'no desc')
+
+--update addresses
+--	set full_address = 'phat' where ward_code = '00001'
+
+--delete from addresses
+
+--select * from addresses
+
 create function dbo.fn_chk_valid_address (
     @address_province_code varchar(20),
 	@address_district_code varchar(20),
