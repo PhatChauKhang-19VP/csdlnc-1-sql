@@ -107,7 +107,11 @@ create table lich_trinh (
 	foreign key (ma_tour) references tours(ma_tour),
 	ngay_thu int not null,
 	check (ngay_thu > 0),
-	primary key (ma_tour, ngay_thu),
+
+	stt int not null,
+
+	primary key (ma_tour, ngay_thu, stt),
+
 	tg_bat_dau time not null,
 	tg_ket_thuc time not null,
 	

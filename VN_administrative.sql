@@ -1,6 +1,5 @@
 ﻿-- drop database pck_bus_travel
 
-create database pck_bus_travel
 go
 
 use pck_bus_travel
