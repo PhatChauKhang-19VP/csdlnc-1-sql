@@ -179,11 +179,113 @@ end
 go
 
 exec usp_tim_tour_not_op
-	@ma_tour = '1',
-	@ten_tour = 'ur1',
-	@from_so_ngay = null,
-	@to_so_ngay = null,
+	@ma_tour = null,
+	@ten_tour = null,
+	@from_so_ngay = 3,
+	@to_so_ngay = 4,
 	@from_gia_tien = null,
 	@to_gia_tien = null,
-	@ds_ma_tinh = N'[{"ma_tinh":"02"}]',
+	@ds_ma_tinh = null,
 	@ds_ma_dia_diem = null
+
+
+create proc usp_tao_tour
+	@ma_tour varchar(255),
+	@ten_tour nvarchar(255),
+	@so_ngay int,
+	@gia_tien_dk float,
+	@ma_nv varchar(255),
+	@ds_lo_trinh nvarchar(max),
+	@ds_lich_trinh nvarchar(max)
+as
+begin
+begin try
+begin tran
+
+-- insert to tours
+insert into tours values (@ma_tour, @ten_tour, @so_ngay, CURRENT_TIMESTAMP, @gia_tien_dk, @ma_nv)
+
+declare @get_lo_trinh cursor
+
+set @get_lo_trinh = cursor for (
+		select * from openjson(@ds_lo_trinh) with (
+			stt int 'strict $.stt',
+			ten int '$.noi_khoi_hanh',
+			sdt int '$.noi_den',
+			cccd float '$.tg_di_chuyen',
+			ngay_sinh_kh int '$.ma_ks'
+		)
+	)
+declare @stt_lo_trinh int
+declare @noi_khoi_hanh int
+declare @noi_den int
+declare @tg_di_chuyen float
+declare @ma_ks int
+
+open @get_lo_trinh
+fetch next from @get_lo_trinh into @stt_lo_trinh, @noi_khoi_hanh, @noi_den, @tg_di_chuyen, @ma_ks
+while @@FETCH_STATUS = 0
+begin
+	insert into lo_trinh 
+		(ma_tour, stt, noi_khoi_hanh, noi_den, ma_ks) values 
+		(@ma_tour, @stt_lo_trinh, @noi_khoi_hanh, @noi_den, @ma_ks)
+
+	fetch next from @get_lo_trinh into @stt_lo_trinh, @noi_khoi_hanh, @noi_den, @tg_di_chuyen, @ma_ks
+end
+
+close @get_lo_trinh
+deallocate @get_lo_trinh
+
+
+-- insert into dang_ki_phong
+declare @get_lich_trinh cursor
+
+set @get_lich_trinh = cursor for (
+		select * from openjson(@ds_lich_trinh) with (
+			stt int 'strict $.ngay_thu',
+			ten time '$.tg_bat_dau',
+			sdt time '$.tg_ket_thuc',
+			cccd int '$.ma_dia_diem'
+		)
+	)
+declare @ngay_thu int
+declare @tg_bat_dau time
+declare @tg_ket_thuc time
+declare @ma_dia_diem int
+
+open @get_lich_trinh
+fetch next from @get_lich_trinh into @ngay_thu, @tg_bat_dau, @tg_ket_thuc, @ma_dia_diem
+while @@FETCH_STATUS = 0
+begin
+	insert into lich_trinh 
+		(ma_tour, ngay_thu, tg_bat_dau, tg_ket_thuc, ma_dia_diem) values 
+		(@ma_tour, @ngay_thu, @tg_bat_dau, @tg_ket_thuc, @ma_dia_diem)
+
+	fetch next from @get_lich_trinh into @ngay_thu, @tg_bat_dau, @tg_ket_thuc, @ma_dia_diem
+
+end
+
+close @get_lich_trinh
+deallocate @get_lich_trinh
+
+commit tran -- Transaction Success!
+end try
+begin catch
+if @@trancount > 0
+    rollback tran --RollBack in case of Error
+
+	DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE()
+
+	print @ErrorMessage
+end catch
+end
+go
+
+exec usp_tao_tour
+	@ma_tour = 'tour2',
+	@ten_tour  = 'Ngô',
+	@so_ngay int,
+	@gia_tien_dk float,
+	@ma_nv varchar(255),
+	@ds_lo_trinh nvarchar(max),
+	@ds_lich_trinh nvarchar(max)	
