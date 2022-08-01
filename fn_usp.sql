@@ -1,4 +1,4 @@
-use pck_bus_travel
+﻿use pck_bus_travel
 go
 
 /*
@@ -210,10 +210,10 @@ declare @get_lo_trinh cursor
 set @get_lo_trinh = cursor for (
 		select * from openjson(@ds_lo_trinh) with (
 			stt int 'strict $.stt',
-			ten int '$.noi_khoi_hanh',
-			sdt int '$.noi_den',
-			cccd float '$.tg_di_chuyen',
-			ngay_sinh_kh int '$.ma_ks'
+			noi_khoi_hanh int '$.noi_khoi_hanh',
+			noi_den int '$.noi_den',
+			tg_di_chuyen float '$.tg_di_chuyen',
+			ma_ks int '$.ma_ks'
 		)
 	)
 declare @stt_lo_trinh int
@@ -227,8 +227,8 @@ fetch next from @get_lo_trinh into @stt_lo_trinh, @noi_khoi_hanh, @noi_den, @tg_
 while @@FETCH_STATUS = 0
 begin
 	insert into lo_trinh 
-		(ma_tour, stt, noi_khoi_hanh, noi_den, ma_ks) values 
-		(@ma_tour, @stt_lo_trinh, @noi_khoi_hanh, @noi_den, @ma_ks)
+		(ma_tour, stt, noi_khoi_hanh, noi_den, tg_di_chuyen, ma_ks) values 
+		(@ma_tour, @stt_lo_trinh, @noi_khoi_hanh, @noi_den, @tg_di_chuyen, @ma_ks)
 
 	fetch next from @get_lo_trinh into @stt_lo_trinh, @noi_khoi_hanh, @noi_den, @tg_di_chuyen, @ma_ks
 end
@@ -283,9 +283,16 @@ go
 
 exec usp_tao_tour
 	@ma_tour = 'tour2',
-	@ten_tour  = 'Ng�',
-	@so_ngay int,
-	@gia_tien_dk float,
-	@ma_nv varchar(255),
-	@ds_lo_trinh nvarchar(max),
-	@ds_lich_trinh nvarchar(max)	
+	@ten_tour  = 'Ngô',
+	@so_ngay = 2,
+	@gia_tien_dk = 1000,
+	@ma_nv = '6992SUL6O4G669J13',
+	@ds_lo_trinh = N'[{"stt": 1, "noi_khoi_hanh": 17, "noi_den": 19, "tg_di_chuyen": 5.5, "ma_ks": 1}]',
+	@ds_lich_trinh =  N'[
+			{"ngay_thu" : 1, "tg_bat_dau": "7:00", "tg_ket_thuc": "8:00", "ma_dia_diem": 8},
+			{"ngay_thu" : 2, "tg_bat_dau": "7:00", "tg_ket_thuc": "8:00", "ma_dia_diem": 8}
+		]'
+
+--select code from PROVINCES
+
+--select top (10) * from ADDRESSES
