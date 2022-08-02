@@ -91,6 +91,8 @@ create table lo_trinh (
 	foreign key (ma_tour) references tours(ma_tour),
 
 	stt int not null,
+	primary key (ma_tour, stt),
+
 	noi_khoi_hanh varchar(20) not null,
 	foreign key (noi_khoi_hanh) references provinces(code),
 	noi_den varchar(20) not null,

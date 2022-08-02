@@ -13,7 +13,6 @@ json format:
 {"stt": 1, "loai_phong": "loai phong"},
 ...
 ]
-
 */
 create proc usp_dk_tour
 	@ma_tour varchar(255),
@@ -292,7 +291,36 @@ exec usp_tao_tour
 			{"ngay_thu" : 1, "tg_bat_dau": "7:00", "tg_ket_thuc": "8:00", "ma_dia_diem": 8},
 			{"ngay_thu" : 2, "tg_bat_dau": "7:00", "tg_ket_thuc": "8:00", "ma_dia_diem": 8}
 		]'
-
+go
 --select code from PROVINCES
 
 --select top (10) * from ADDRESSES
+
+--select max(t.gia_tien_dk) from tours as t
+
+create proc usp_thong_ke_doanh_thu
+@month_interval int
+as
+begin
+select 
+	DATEPART(YEAR, tdk_1.bat_dau) as nam, 
+	((DATEPART(MONTH, tdk_1.bat_dau) - 1) / @month_interval)*@month_interval + 1 as tu_thang, 
+	((DATEPART(MONTH, tdk_1.bat_dau) - 1) / @month_interval)*@month_interval + @month_interval as den_het_thang, 
+	sum(dttt.doanh_thu) as doanh_thu
+from tour_dang_ki as tdk_1
+left join (select tdk.ma_tour, tdk.mo_lan_thu, t.gia_tien_dk, t.gia_tien_dk * count(khdk.ma_kh_dk) as doanh_thu
+	from tour_dang_ki as tdk 
+	join tours as t on tdk.ma_tour = t.ma_tour
+	join khach_hang_dang_ki as khdk on tdk.ma_tour = khdk.ma_tour and tdk.mo_lan_thu = khdk.mo_lan_thu
+	group by t.gia_tien_dk, tdk.ma_tour, tdk.mo_lan_thu
+) as dttt -- doanh thu theo tour
+on tdk_1.ma_tour = dttt.ma_tour
+group by DATEPART(YEAR, tdk_1.bat_dau), (DATEPART(MONTH, tdk_1.bat_dau) - 1) / @month_interval
+order by DATEPART(YEAR, tdk_1.bat_dau), (DATEPART(MONTH, tdk_1.bat_dau) - 1) / @month_interval
+end 
+go
+
+
+
+
+--create proc usp_thong_ke_doanh_thu_quy
