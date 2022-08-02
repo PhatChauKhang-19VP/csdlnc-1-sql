@@ -1,8 +1,9 @@
 ﻿-- drop database pck_bus_travel
 
+create database pck_bus_travel_1
 go
 
-use pck_bus_travel
+use pck_bus_travel_1
 go
 
 --use master
@@ -12629,8 +12630,8 @@ INSERT INTO dbo.WARDS (code,name,name_en,full_name,full_name_en,code_name,distri
 	 ('32248',N'Đất Mũi',N'Dat Mui',N'Xã Đất Mũi',N'Dat Mui Commune',N'dat_mui',N'973');
 go
 
-insert into addresses (address_line, ward_code, add_desc) values 
-	('nha 4', '00001', 'no desc'),
-	('nha 455', '00004', 'no desc'),
-	('nha 55', '00006', 'no desc'),
-	('nha 19055', '00190', 'no desc')
+--insert into addresses (address_line, ward_code, add_desc) values 
+--	('nha 4', '00001', 'no desc'),
+--	('nha 455', '00004', 'no desc'),
+--	('nha 55', '00006', 'no desc'),
+--	('nha 19055', '00190', 'no desc')

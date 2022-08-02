@@ -1,4 +1,4 @@
-﻿use pck_bus_travel
+﻿use test
 go
 
 /*
@@ -280,18 +280,18 @@ end catch
 end
 go
 
-exec usp_tao_tour
-	@ma_tour = 'tour2',
-	@ten_tour  = 'Ngô',
-	@so_ngay = 2,
-	@gia_tien_dk = 1000,
-	@ma_nv = '6992SUL6O4G669J13',
-	@ds_lo_trinh = N'[{"stt": 1, "noi_khoi_hanh": 17, "noi_den": 19, "tg_di_chuyen": 5.5, "ma_ks": 1}]',
-	@ds_lich_trinh =  N'[
-			{"ngay_thu" : 1, "tg_bat_dau": "7:00", "tg_ket_thuc": "8:00", "ma_dia_diem": 8},
-			{"ngay_thu" : 2, "tg_bat_dau": "7:00", "tg_ket_thuc": "8:00", "ma_dia_diem": 8}
-		]'
-go
+--exec usp_tao_tour
+--	@ma_tour = 'tour2',
+--	@ten_tour  = 'Ngô',
+--	@so_ngay = 2,
+--	@gia_tien_dk = 1000,
+--	@ma_nv = '6992SUL6O4G669J13',
+--	@ds_lo_trinh = N'[{"stt": 1, "noi_khoi_hanh": 17, "noi_den": 19, "tg_di_chuyen": 5.5, "ma_ks": 1}]',
+--	@ds_lich_trinh =  N'[
+--			{"ngay_thu" : 1, "tg_bat_dau": "7:00", "tg_ket_thuc": "8:00", "ma_dia_diem": 8},
+--			{"ngay_thu" : 2, "tg_bat_dau": "7:00", "tg_ket_thuc": "8:00", "ma_dia_diem": 8}
+--		]'
+--go
 --select code from PROVINCES
 
 --select top (10) * from ADDRESSES
@@ -302,18 +302,24 @@ create proc usp_thong_ke_doanh_thu
 @month_interval int
 as
 begin
-select 
+	if @month_interval is null
+		set @month_interval = 1
+	if @month_interval > 12
+		set @month_interval = 12
+	if @month_interval < 1
+		set @month_interval = 1
+select
 	DATEPART(YEAR, tdk_1.bat_dau) as nam, 
 	((DATEPART(MONTH, tdk_1.bat_dau) - 1) / @month_interval)*@month_interval + 1 as tu_thang, 
 	((DATEPART(MONTH, tdk_1.bat_dau) - 1) / @month_interval)*@month_interval + @month_interval as den_het_thang, 
 	sum(dttt.doanh_thu) as doanh_thu
 from tour_dang_ki as tdk_1
-left join (select tdk.ma_tour, tdk.mo_lan_thu, t.gia_tien_dk, t.gia_tien_dk * count(khdk.ma_kh_dk) as doanh_thu
-	from tour_dang_ki as tdk 
-	join tours as t on tdk.ma_tour = t.ma_tour
-	join khach_hang_dang_ki as khdk on tdk.ma_tour = khdk.ma_tour and tdk.mo_lan_thu = khdk.mo_lan_thu
-	group by t.gia_tien_dk, tdk.ma_tour, tdk.mo_lan_thu
-) as dttt -- doanh thu theo tour
+	left join (select tdk.ma_tour, tdk.mo_lan_thu, t.gia_tien_dk, t.gia_tien_dk * count(khdk.ma_kh_dk) as doanh_thu
+		from tour_dang_ki as tdk 
+		join tours as t on tdk.ma_tour = t.ma_tour
+		join khach_hang_dang_ki as khdk on tdk.ma_tour = khdk.ma_tour and tdk.mo_lan_thu = khdk.mo_lan_thu
+		group by t.gia_tien_dk, tdk.ma_tour, tdk.mo_lan_thu
+	) as dttt -- doanh thu theo tour
 on tdk_1.ma_tour = dttt.ma_tour
 group by DATEPART(YEAR, tdk_1.bat_dau), (DATEPART(MONTH, tdk_1.bat_dau) - 1) / @month_interval
 order by DATEPART(YEAR, tdk_1.bat_dau), (DATEPART(MONTH, tdk_1.bat_dau) - 1) / @month_interval
@@ -321,6 +327,21 @@ end
 go
 
 
+create proc usp_get_tour_info
+	@ma_tour varchar(255),
+	@mo_lan_thu int
+as
+begin
+	select tdk.*, t.ten_tour, t.gia_tien_dk, b.*
+	from tour_dang_ki as tdk  
+	join tours as t on tdk.ma_tour = t.ma_tour
+	join buses as b on tdk.ma_phuong_tien = b.bien_so_xe
+	where tdk.ma_tour = @ma_tour
 
-
---create proc usp_thong_ke_doanh_thu_quy
+	select distinct(p.code), p.*
+	from tours as t 
+	join lo_trinh as lt on t.ma_tour = lt.ma_tour
+	join PROVINCES as p on lt.noi_den = p.code
+	where t.ma_tour = @ma_tour
+end
+go
