@@ -345,3 +345,53 @@ begin
 	where t.ma_tour = @ma_tour
 end
 go
+
+
+create proc usp_search_tour_dk
+	@ds_ma_tinh nvarchar(max),
+	@ngay_di date,
+	@from_so_ngay int,
+	@to_so_ngay int,
+	@so_nguoi int,
+	@from_gia_tien float,
+	@to_gia_tien float
+as
+begin
+	print 'usp_search_tour_dk'
+	if @ds_ma_tinh is null
+		set @ds_ma_tinh ='[]'
+	if @from_so_ngay is null
+		set @from_so_ngay = -1
+	if @to_so_ngay is null
+		set @to_so_ngay = 2147483647
+	if @so_nguoi is null
+		set @so_nguoi = 0
+	if @from_gia_tien is null
+		set @from_gia_tien = -1
+	if @to_gia_tien is null
+		set @to_gia_tien = 1000000000
+
+
+	select * from tours as t
+		join tour_dang_ki as tdk on t.ma_tour = tdk.ma_tour
+		where
+			DATEDIFF(second, tdk.kt_dk_ngay, CURRENT_TIMESTAMP) < 0
+			and ((tdk.bat_dau >= @ngay_di and tdk.bat_dau < dateadd(day,1,@ngay_di)) or @ngay_di is null)
+			and tdk.so_slot_con_lai > @so_nguoi
+			and t.so_ngay >= @from_so_ngay and t.so_ngay <= @to_so_ngay
+			and t.gia_tien_dk >= @from_gia_tien and t.gia_tien_dk <= @to_gia_tien
+			and t.ma_tour in (select lot.ma_tour 
+								from lo_trinh as lot
+								where @ds_ma_tinh ='[]' or lot.noi_den in (select * from openjson(@ds_ma_tinh) 
+														with (ma_tinh varchar(20) '$.ma_tinh')))
+end
+go
+
+exec usp_search_tour_dk
+	@ds_ma_tinh = N'[]',
+	@ngay_di = null,
+	@from_so_ngay =3,
+	@to_so_ngay = 3,
+	@so_nguoi  = null,
+	@from_gia_tien = 100,
+	@to_gia_tien = 1000
