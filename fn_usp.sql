@@ -372,10 +372,10 @@ begin
 		set @to_gia_tien = 1000000000
 
 
-	select * from tours as t
+	select tdk.*, t.gia_tien_dk, t.so_ngay, t.ten_tour from tours as t
 		join tour_dang_ki as tdk on t.ma_tour = tdk.ma_tour
 		where
-			DATEDIFF(second, tdk.kt_dk_ngay, CURRENT_TIMESTAMP) < 0
+			datediff_big(second, tdk.kt_dk_ngay, CURRENT_TIMESTAMP) < 0
 			and ((tdk.bat_dau >= @ngay_di and tdk.bat_dau < dateadd(day,1,@ngay_di)) or @ngay_di is null)
 			and tdk.so_slot_con_lai > @so_nguoi
 			and t.so_ngay >= @from_so_ngay and t.so_ngay <= @to_so_ngay
@@ -384,14 +384,32 @@ begin
 								from lo_trinh as lot
 								where @ds_ma_tinh ='[]' or lot.noi_den in (select * from openjson(@ds_ma_tinh) 
 														with (ma_tinh varchar(20) '$.ma_tinh')))
+		order by tdk.bat_dau asc, t.gia_tien_dk asc
 end
 go
 
-exec usp_search_tour_dk
-	@ds_ma_tinh = N'[]',
-	@ngay_di = null,
-	@from_so_ngay =3,
-	@to_so_ngay = 3,
-	@so_nguoi  = null,
-	@from_gia_tien = 100,
-	@to_gia_tien = 1000
+--exec usp_search_tour_dk
+--	@ds_ma_tinh = N'[]',
+--	@ngay_di = null,
+--	@from_so_ngay =3,
+--	@to_so_ngay = 3,
+--	@so_nguoi  = null,
+--	@from_gia_tien = null,
+--	@to_gia_tien = null
+
+
+--select t.ma_tour, p.code, p.full_name 
+--from tours as t join lo_trinh as lt on t.ma_tour = lt.ma_tour 
+--join PROVINCES as p on lt.noi_den = p.code
+--where t.ma_tour='06638C4HNEY65R7L18GG2C1T0713R5T5CF7NKL32X9E9U1G4H367Q8622BH7B44L4V89482IDQ2P3091QT3O0CDU8HB9XX153M921HUEPQ1872C9CM23R6874881BQA1POIJ3KS543GSWD7Q0W7U8CB2K3B70AV4J855IWMPHVFFXCVOF5H0QP46352PX2LT343L5X13DPL56X94Y668V795V6C855724NLDYS43J3NWJUU7285JHP4Q71BVBME'
+--order by p.code
+
+
+-- exec usp_search_tour_dk
+--                @ds_ma_tinh = '[]',
+--                @ngay_di = null,
+--                @so_nguoi = 1,
+--                @from_so_ngay = 1,
+--                @to_so_ngay = 7,
+--                @from_gia_tien = 600,
+--                @to_gia_tien = 800
