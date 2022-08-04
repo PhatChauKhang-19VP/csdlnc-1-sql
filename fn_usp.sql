@@ -413,3 +413,37 @@ go
 --                @to_so_ngay = 7,
 --                @from_gia_tien = 600,
 --                @to_gia_tien = 800
+
+create proc usp_get_lo_trinh
+	@ma_tour varchar(255)
+as
+begin
+
+select lt.*, p_kh.full_name as ten_noi_khoi_hanh, p_den.full_name as ten_noi_den
+from tours as t 
+join lo_trinh as lt on t.ma_tour = lt.ma_tour
+join PROVINCES as p_kh on lt.noi_khoi_hanh = p_kh.code
+join PROVINCES as p_den on lt.noi_den = p_den.code
+where t.ma_tour = @ma_tour
+order by lt.stt
+
+end
+go
+
+
+create proc usp_get_lich_trinh
+	@ma_tour varchar(255)
+as
+begin
+
+select lt.*, a.full_address, a.add_desc
+from tours as t 
+join lich_trinh as lt on t.ma_tour = lt.ma_tour
+join ADDRESSES as a on lt.ma_dia_diem = a.code
+where t.ma_tour = @ma_tour
+order by lt.stt
+
+end
+go
+
+--exec usp_get_lo_trinh '00G7A3WF1JM12S9BQLDHTKQ33BBOFO3B4WM94Y06O8853S3L92J76MR5CUSH2QOZ1NGP6S633IDL9O6474OM9GY553H3J734KJP6N6IJK87S6N88CM7P6B6FWXE7YBW62LB0SP8VTMHSYGVG1YKUZ26Q188C1R86N8548YS23UB45TWWS8877I75H73S75HI815JAW76150NS58U33B21BD7S89EO53Y8YX3V37Q67CG91U18S46T4Q1U5204PX'
